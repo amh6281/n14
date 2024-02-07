@@ -92,6 +92,10 @@ const Live = () => {
     };
   }, [updateMyPresence]);
 
+  const setReaction = useCallback((reaction: string) => {
+    setCursorState({ mode: CursorMode.Reaction, reaction, isPressed: false });
+  }, []);
+
   return (
     <div
       onPointerMove={handlePointerMove}
@@ -111,11 +115,7 @@ const Live = () => {
       )}
 
       {cursorState.mode === CursorMode.ReactionSelector && (
-        <ReactionSelector
-          setReaction={(reaction) => {
-            setReactions(reaction);
-          }}
-        />
+        <ReactionSelector setReaction={setReaction} />
       )}
       <LiveCursors others={others} />
     </div>
