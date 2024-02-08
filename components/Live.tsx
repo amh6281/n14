@@ -1,8 +1,13 @@
-import { useMyPresence, useOthers } from "@/liveblocks.config";
+import {
+  useBroadcastEvent,
+  useEventListener,
+  useMyPresence,
+  useOthers,
+} from "@/liveblocks.config";
 import LiveCursors from "./cursor/LiveCursors";
 import { useCallback, useEffect, useState } from "react";
 import CursorChat from "./cursor/CursorChat";
-import { CursorMode, CursorState, Reaction } from "@/types/type";
+import { CursorMode, CursorState, Reaction, ReactionEvent } from "@/types/type";
 import ReactionSelector from "./reaction/ReactionButton";
 import FlyingReaction from "./reaction/FlyingReaction";
 import useInterval from "@/hooks/useInterval";
@@ -15,6 +20,14 @@ const Live = () => {
     mode: CursorMode.Hidden,
   });
   const [reactions, setReactions] = useState<Reaction[]>([]);
+
+  const broadcast = useBroadcastEvent(); // Room 실시간 이벤트 브로드캐스팅
+
+  useInterval(() => {
+    setReactions((reactions) =>
+      reactions.filter((r) => r.timestamp > Date.now() - 4000)
+    );
+  }, 1000);
 
   useInterval(() => {
     if (
@@ -31,8 +44,27 @@ const Live = () => {
           },
         ])
       );
+      broadcast({
+        x: cursor.x,
+        y: cursor.y,
+        value: cursorState.reaction,
+      });
     }
   }, 200);
+
+  useEventListener((eventData) => {
+    const event = eventData.event as ReactionEvent;
+
+    setReactions((reactions) =>
+      reactions.concat([
+        {
+          point: { x: event.x, y: event.y },
+          value: event.value,
+          timestamp: Date.now(),
+        },
+      ])
+    );
+  });
 
   // 포인터 이동 함수
   const handlePointerMove = useCallback((event: React.PointerEvent) => {
