@@ -45,6 +45,7 @@ const CursorChat = ({
             style={{
               borderRadius: 20,
             }}
+            onKeyUp={(e) => e.stopPropagation()} // message mode에서 reaction mode로 전파 방지
           >
             {cursorState.previousMessage && (
               <div>{cursorState.previousMessage}</div>
