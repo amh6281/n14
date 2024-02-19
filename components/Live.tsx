@@ -12,7 +12,11 @@ import ReactionSelector from "./reaction/ReactionButton";
 import FlyingReaction from "./reaction/FlyingReaction";
 import useInterval from "@/hooks/useInterval";
 
-const Live = () => {
+type LiveProps = {
+  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
+};
+
+const Live = ({ canvasRef }: LiveProps) => {
   const others = useOthers(); // Room 실시간 사용자 목록
   const [{ cursor }, updateMyPresence] = useMyPresence() as any; // Room 현재 사용자의 존재 정보
 
@@ -150,13 +154,14 @@ const Live = () => {
 
   return (
     <div
+      id="canvas"
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       className="h-[100vh] w-full flex justify-center items-center text-center"
     >
-      <h1>hello</h1>
+      <canvas ref={canvasRef} />
 
       {reactions.map((r) => (
         <FlyingReaction
