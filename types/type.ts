@@ -68,3 +68,15 @@ export type NavbarProps = {
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleActiveElement: (element: ActiveElement) => void;
 };
+
+export type ShapesMenuProps = {
+  item: {
+    name: string;
+    icon: string;
+    value: Array<ActiveElement>;
+  };
+  activeElement: any;
+  handleActiveElement: any;
+  handleImageUpload: any;
+  imageInputRef: any;
+};
