@@ -8,10 +8,12 @@ import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import {
   handleCanvasMouseDown,
+  handleCanvaseMouseMove,
   handleResize,
   initializeFabric,
 } from "@/lib/canvas";
 import { ActiveElement } from "@/types/type";
+import { useMutation, useStorage } from "@/liveblocks.config";
 
 export default function Page() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,6 +21,20 @@ export default function Page() {
   const isDrawing = useRef(false);
   const shapeRef = useRef<fabric.Object | null>(null);
   const selectedShapeRef = useRef<string | null>("rectangle");
+
+  const canvasObjects = useStorage((root) => root.canvasObjects);
+
+  const syncShapeInStorage = useMutation(({ storage }, object) => {
+    if (!object) return;
+    const { objectId } = object;
+
+    const shapeData = object.toJSON();
+    shapeData.objectId = objectId;
+
+    const canvasObjects = storage.get("canvasObjects");
+
+    canvasObjects.set(objectId, shapeData);
+  }, []);
 
   const [activeElement, setActiveElement] = useState<ActiveElement>({
     name: "",
@@ -45,6 +61,16 @@ export default function Page() {
         selectedShapeRef,
         isDrawing,
         shapeRef,
+      });
+    });
+    canvas.on("mouse:move", (options) => {
+      handleCanvaseMouseMove({
+        options,
+        canvas,
+        selectedShapeRef,
+        isDrawing,
+        shapeRef,
+        syncShapeInStorage,
       });
     });
 
